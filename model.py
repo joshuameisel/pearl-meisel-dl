@@ -10,6 +10,7 @@ class Model(nn.Module):
     def __init__(self):
         super().__init__()
         self.fcn = torchvision.models.segmentation.fcn_resnet50(pretrained=False)
+
         # also load pretrained feature extractor
         # also create final combining layer
 
@@ -24,8 +25,12 @@ class Model(nn.Module):
             cmask = roadmask == c
             labeled, n = label(cmask)
             for i in range(1, n+1):
-                y, x = np.where(labeled == i)
+                y, x = np.where(labeled == i) 
+                y, x = ((y - 400) / 10), ((x - 400) / 10)
                 y, x = [y[0], y[-1]], [x[0], x[-1]]
                 (top, bottom), (left, right) = y, x
-                results.append(((top, top, bottom, bottom), (left, right, left, right)))
+                results.append([[top, top, bottom, bottom], [left, right, left, right]])
         return results
+    
+    def binary_roadmap(self, roadmask):
+        return roadmask > 0
