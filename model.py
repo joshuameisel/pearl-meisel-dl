@@ -9,13 +9,27 @@ from scipy.ndimage.measurements import label
 class Model(nn.Module):
     def __init__(self):
         super().__init__()
-        self.fcns = tuple(torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11) for i in range(6))
+#         self.fcns = tuple(torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11) for i in range(6))
+        self.fcn1 = torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11)
+        self.fcn2 = torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11)
+        self.fcn3 = torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11)
+        self.fcn4 = torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11)
+        self.fcn5 = torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11)
+        self.fcn6 = torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11)
+        
         self.conv = nn.Conv2d(66, 11, kernel_size=1)
         self.upsample = torch.nn.Upsample(size=(800, 800))
 
     def forward(self, x):
-        x = tuple(self.fcns[i](x[:,i,:,:,:])['out'] for i in range(6))
-        x = torch.cat(x, dim=1)
+        x1 = self.fcn1(x[:,0,:,:,:])['out']
+        x2 = self.fcn1(x[:,1,:,:,:])['out']
+        x3 = self.fcn1(x[:,2,:,:,:])['out']
+        x4 = self.fcn1(x[:,3,:,:,:])['out']
+        x5 = self.fcn1(x[:,4,:,:,:])['out']
+        x6 = self.fcn1(x[:,5,:,:,:])['out']
+        
+#         x = tuple(self.fcns[i](x[:,i,:,:,:])['out'] for i in range(6))
+        x = torch.cat([x1, x2, x3, x4, x5, x6], dim=1)
         x = self.conv(x)
         x = self.upsample(x)
         
