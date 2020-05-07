@@ -14,7 +14,7 @@ class Model(nn.Module):
         self.upsample = torch.nn.Upsample(size=(800, 800))
 
     def forward(self, x):
-        x = tuple(self.fcns[i](x[i])['out'] for i in range(6))
+        x = tuple(self.fcns[i](x[:,i,:,:,:])['out'] for i in range(6))
         x = torch.cat(x, dim=1)
         x = self.conv(x)
         x = self.upsample(x)
