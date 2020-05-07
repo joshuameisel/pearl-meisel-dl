@@ -9,13 +9,17 @@ from scipy.ndimage.measurements import label
 class Model(nn.Module):
     def __init__(self):
         super().__init__()
-        self.fcn = torchvision.models.segmentation.fcn_resnet50(pretrained=False)
-
-        # also load pretrained feature extractor
-        # also create final combining layer
+        self.fcns = tuple(torchvision.models.segmentation.fcn_resnet50(pretrained=False, num_classes=11) for i in range(6))
+        self.conv = nn.Conv2d(66, 11, kernel_size=1)
+        self.upsample = torch.nn.Upsample(size=(800, 800))
 
     def forward(self, x):
-        return self.fcn(x)
+        x = tuple(self.fcns[i](x[i])['out'] for i in range(6))
+        x = torch.cat(x, dim=1)
+        x = self.conv(x)
+        x = self.upsample(x)
+        
+        return x
 
     # need to properly format results and convert to coordinate space
     def bounding_boxes(self, roadmask):
