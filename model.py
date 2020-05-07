@@ -48,7 +48,7 @@ class Model(nn.Module):
                 y, x = [y[0], y[-1]], [x[0], x[-1]]
                 (top, bottom), (left, right) = y, x
                 results.append([[top, top, bottom, bottom], [left, right, left, right]])
-        return results
+        return torch.tensor(results)
     
     def binary_roadmap(self, roadmask):
         return roadmask > 0
