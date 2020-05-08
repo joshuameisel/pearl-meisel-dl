@@ -40,7 +40,7 @@ class Model(nn.Module):
         rmask = roadmask.cpu().numpy()
         rmask = np.argmax(rmask, axis=0)
         #print(rmask.shape)
-        cats = [x for x in np.unique(rmask) if x >= 1]
+        cats = [x for x in np.unique(rmask) if x >= 2]
         #print(cats)
         for c in cats:
             cmask = rmask == c
@@ -53,6 +53,7 @@ class Model(nn.Module):
                 results.append([[top, top, bottom, bottom], [left, right, left, right]])
         res = torch.tensor(results)
         #print(res.shape)
+        print(res[0])
         return res
     
     def binary_roadmap(self, roadmask):
