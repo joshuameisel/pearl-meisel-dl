@@ -35,12 +35,15 @@ class Model(nn.Module):
         
         return x
 
-    # need to properly format results and convert to coordinate space
     def bounding_boxes(self, roadmask):
         results = []
-        cats = [x for x in np.unique(roadmask) if x > 1]
+        rmask = roadmask.cpu().numpy()
+        rmask = np.argmax(rmask, axis=0)
+        #print(rmask.shape)
+        cats = [x for x in np.unique(rmask) if x >= 1]
+        #print(cats)
         for c in cats:
-            cmask = roadmask == c
+            cmask = rmask == c
             labeled, n = label(cmask)
             for i in range(1, n+1):
                 y, x = np.where(labeled == i) 
@@ -48,7 +51,9 @@ class Model(nn.Module):
                 y, x = [y[0], y[-1]], [x[0], x[-1]]
                 (top, bottom), (left, right) = y, x
                 results.append([[top, top, bottom, bottom], [left, right, left, right]])
-        return torch.tensor(results)
+        res = torch.tensor(results)
+        #print(res.shape)
+        return res
     
     def binary_roadmap(self, roadmask):
         return roadmask > 0
