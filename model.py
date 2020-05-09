@@ -49,7 +49,7 @@ class Model(nn.Module):
             for i in range(1, n+1):
                 y, x = np.where(labeled == i) 
                 y, x = ((y - 400) / 10), ((x - 400) / 10)
-                y, x = [-y[0], -y[-1]], [x[0], x[-1]]
+                y, x = [-y.min(), -y.max()], [x.min(), x.max()]
                 (top, bottom), (left, right) = y, x
                 results.append([[left, right, left, right], [top, top, bottom, bottom]])
         res = torch.tensor(results)
@@ -66,6 +66,6 @@ class Model(nn.Module):
     
     def binary_roadmap(self, roadmask):
         rmask = roadmask.cpu().numpy()
-        rmask[2:, :, :] *= 1.4
+#         rmask[2:, :, :] *= 1.4
         rmask = np.argmax(rmask, axis=0)
         return torch.tensor(rmask > 0)
