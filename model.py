@@ -37,7 +37,6 @@ class Model(nn.Module):
 
     def bounding_boxes(self, roadmask):
         results = []
-        results.append([[0, 0, 5, 5], [0, 5, 0, 5]])
         rmask = roadmask.cpu().numpy()
         rmask[2:, :, :] *= 1.4
         rmask = np.argmax(rmask, axis=0)
@@ -50,9 +49,16 @@ class Model(nn.Module):
             for i in range(1, n+1):
                 y, x = np.where(labeled == i) 
                 y, x = ((y - 400) / 10), ((x - 400) / 10)
-                y, x = [y[0], y[-1]], [x[0], x[-1]]
+                y, x = [-y[0], -y[-1]], [x[0], x[-1]]
                 (top, bottom), (left, right) = y, x
-                results.append([[top, top, bottom, bottom], [left, right, left, right]])
+                results.append([[left, right, left, right], [top, top, bottom, bottom]])
+        res = torch.tensor(results)
+        #print(res.shape)
+        #print(res[0])
+        return res
+
+        if len(results) == 0:
+            results.append([[0, 0, 5, 5], [0, 5, 0, 5]])
         res = torch.tensor(results)
         #print(res.shape)
         #print(res[0])
