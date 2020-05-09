@@ -37,7 +37,9 @@ class Model(nn.Module):
 
     def bounding_boxes(self, roadmask):
         results = []
+        results.append([[0, 0, 5, 5], [0, 5, 0, 5]])
         rmask = roadmask.cpu().numpy()
+        rmask[2:, :, :] *= 1.4
         rmask = np.argmax(rmask, axis=0)
         #print(rmask.shape)
         cats = [x for x in np.unique(rmask) if x >= 2]
@@ -53,8 +55,11 @@ class Model(nn.Module):
                 results.append([[top, top, bottom, bottom], [left, right, left, right]])
         res = torch.tensor(results)
         #print(res.shape)
-        print(res[0])
+        #print(res[0])
         return res
     
     def binary_roadmap(self, roadmask):
-        return roadmask > 0
+        rmask = roadmask.cpu().numpy()
+        rmask[2:, :, :] *= 1.4
+        rmask = np.argmax(rmask, axis=0)
+        return torch.tensor(rmask > 0)

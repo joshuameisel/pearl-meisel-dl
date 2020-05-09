@@ -30,18 +30,19 @@ class ModelLoader():
     def __init__(self, model_file='model'):
         self.model = model.Model()
         self.model.load_state_dict(torch.load('model_sd'))
+        self.model.cuda()
 
     def get_bounding_boxes(self, samples):
         # samples is a cuda tensor with size [batch_size, 6, 3, 256, 306]
         # You need to return a tuple with size 'batch_size' and each element is a cuda tensor [N, 2, 4]
         # where N is the number of object
         masks = self.model(samples)
-        bboxes = torch.tensor([self.model.bounding_boxes(mask) for mask in masks])
+        bboxes = tuple(self.model.bounding_boxes(mask) for mask in masks)
         return bboxes
 
     def get_binary_road_map(self, samples):
         # samples is a cuda tensor with size [batch_size, 6, 3, 256, 306]
         # You need to return a cuda tensor with size [batch_size, 800, 800] 
         masks = self.model(samples)
-        roadmaps = torch.tensor([self.model.binary_roadmap(mask) for mask in masks])
+        roadmaps = torch.stack([self.model.binary_roadmap(mask) for mask in masks])
         return roadmaps
